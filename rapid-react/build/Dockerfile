@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y apt-transport-https \
     add-apt-repository ppa:git-core/ppa && \
     apt-get update && apt-get install -y tzdata && apt-get install -y \
     build-essential \
-    ca-certificates \
+    #ca-certificates \
     #clang-format-10 \
     #cmake \
     curl \
