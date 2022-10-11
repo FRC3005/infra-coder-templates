@@ -22,7 +22,8 @@ RUN apt-get update && apt-get install -y apt-transport-https \
   vim \
   wget \
   zip \
-  && rm -rf /var/lib/apt/lists/*
+  && rm -rf /var/lib/apt/lists/* \
+  && curl -fsSL https://code-server.dev/install.sh | sh
 
 # Add a user `coder` so that you're not developing as the `root` user
 RUN useradd coder \
@@ -32,4 +33,5 @@ RUN useradd coder \
   --user-group && \
   echo "coder ALL=(ALL) NOPASSWD:ALL" >>/etc/sudoers.d/nopasswd
 
-USER coder
+ENV USER=coder
+USER ${USER}

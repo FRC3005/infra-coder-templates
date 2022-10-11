@@ -28,8 +28,8 @@ resource "coder_agent" "main" {
   startup_script = <<EOF
     #!/bin/sh
     # install and start code-server
-    curl -fsSL https://code-server.dev/install.sh | sh
-    find /home/coder/wpilib/2022/vsCodeExtensions/ -name "*.vsix" | xargs -I {} code-server --install-extension {}
+    # curl -fsSL https://code-server.dev/install.sh | sh # For some reason this doesn't work specifically on our server... Add to container
+    find $WPILIB_BASE/vsCodeExtensions/ -name "*.vsix" | xargs -I {} code-server --install-extension {}
     code-server --auth none
     EOF
 
