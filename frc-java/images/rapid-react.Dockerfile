@@ -1,4 +1,6 @@
-FROM robochargers-base:v0.1
+FROM robochargers-local:v0.1
+
+USER root
 
 # Run WPILib Installer
 RUN wget -q https://github.com/wpilibsuite/allwpilib/releases/download/v2022.4.1/WPILib_Linux-2022.4.1.tar.gz \
@@ -11,4 +13,5 @@ RUN wget -q https://github.com/wpilibsuite/allwpilib/releases/download/v2022.4.1
     && rm -rf WPILib_Linux-2022.4.1 \
     && rm -rf /home/coder/wpilib/2022/documentation
 
+USER coder
 WORKDIR /home/coder
