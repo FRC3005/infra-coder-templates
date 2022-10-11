@@ -57,18 +57,42 @@ resource "coder_app" "code-server" {
   }
 }
 
+variable "docker_image" {
+  description = "What Docker image would you like to use for your workspace?"
+  default     = "rapid-react"
+
+  # List of images available for the user to choose from.
+  # Delete this condition to give users free text input.
+  validation {
+    condition     = contains(["base", "rapid-react"], var.docker_image)
+    error_message = "Invalid Docker image!"
+  }
+
+  # Prevents admin errors when the image is not found
+  validation {
+    condition     = fileexists("images/${var.docker_image}.Dockerfile")
+    error_message = "Invalid Docker image. The file does not exist in the images directory."
+  }
+}
+
 resource "docker_volume" "home_volume" {
   name = "coder-${data.coder_workspace.me.owner}-${data.coder_workspace.me.name}-root"
 }
 
 resource "docker_image" "main" {
-  name = "coder-${data.coder_workspace.me.id}"
+  name = "coder-base-${data.coder_workspace.me.id}-${lower(data.coder_workspace.me.name)}"
   build {
-    path = "./build"
+    path       = "./build/"
+    dockerfile = "${var.docker_image}.Dockerfile"
+    tag        = ["coder-${var.docker_image}:v0.1"]
   }
+
   triggers = {
     dir_sha1 = sha1(join("", [for f in fileset(path.module, "build/*") : filesha1(f)]))
   }
+
+  # Keep alive for other workspaces to use upon deletion
+  keep_locally = true
 }
 
 resource "docker_container" "workspace" {
