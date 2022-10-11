@@ -1,4 +1,4 @@
-FROM robochargers-local:v0.1
+FROM ghcr.io/frc3005/frc-java-base:main
 
 USER root
 
