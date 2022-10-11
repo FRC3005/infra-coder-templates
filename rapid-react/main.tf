@@ -15,6 +15,8 @@ data "coder_provisioner" "me" {
 }
 
 provider "docker" {
+  host     = "ssh://frc3005@3.87.232.85:6001"
+  ssh_opts = ["-o", "StrictHostKeyChecking=no", "-o", "UserKnownHostsFile=/dev/null"]
 }
 
 data "coder_workspace" "me" {
@@ -23,7 +25,13 @@ data "coder_workspace" "me" {
 resource "coder_agent" "main" {
   arch           = data.coder_provisioner.me.arch
   os             = "linux"
-  startup_script = "code-server --auth none"
+  startup_script = <<EOF
+    #!/bin/sh
+    # install and start code-server
+    curl -fsSL https://code-server.dev/install.sh | sh
+    find /home/coder/wpilib/2022/vsCodeExtensions/ -name "*.vsix" | xargs -I {} code-server --install-extension {}
+    code-server --auth none
+    EOF
 
   # These environment variables allow you to make Git commits right away after creating a
   # workspace. Note that they take precedence over configuration defined in ~/.gitconfig!
@@ -53,9 +61,20 @@ resource "docker_volume" "home_volume" {
   name = "coder-${data.coder_workspace.me.owner}-${data.coder_workspace.me.name}-root"
 }
 
+resource "docker_image" "main" {
+  name = "coder-${data.coder_workspace.me.id}"
+  build {
+    path = "./build"
+  }
+  triggers = {
+    dir_sha1 = sha1(join("", [for f in fileset(path.module, "build/*") : filesha1(f)]))
+  }
+}
+
 resource "docker_container" "workspace" {
   count = data.coder_workspace.me.start_count
-  image = "codercom/code-server:latest"
+  #image = "codercom/code-server:latest"
+  image = docker_image.main.name
   # Uses lower() to avoid Docker restriction on container names.
   name     = "coder-${data.coder_workspace.me.owner}-${lower(data.coder_workspace.me.name)}"
   hostname = lower(data.coder_workspace.me.name)
