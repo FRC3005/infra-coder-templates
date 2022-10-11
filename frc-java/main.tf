@@ -82,13 +82,13 @@ resource "docker_volume" "home_volume" {
 resource "docker_image" "main" {
   name = "coder-base-${data.coder_workspace.me.id}-${lower(data.coder_workspace.me.name)}"
   build {
-    path       = "./build/"
+    path       = "./images/"
     dockerfile = "${var.docker_image}.Dockerfile"
     tag        = ["coder-${var.docker_image}:v0.1"]
   }
 
   triggers = {
-    dir_sha1 = sha1(join("", [for f in fileset(path.module, "build/*") : filesha1(f)]))
+    dir_sha1 = sha1(join("", [for f in fileset(path.module, "images/*") : filesha1(f)]))
   }
 
   # Keep alive for other workspaces to use upon deletion
