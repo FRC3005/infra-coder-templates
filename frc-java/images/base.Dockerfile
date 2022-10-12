@@ -33,5 +33,6 @@ RUN useradd coder \
   --user-group && \
   echo "coder ALL=(ALL) NOPASSWD:ALL" >>/etc/sudoers.d/nopasswd
 
+ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
 ENV USER=coder
 USER ${USER}
