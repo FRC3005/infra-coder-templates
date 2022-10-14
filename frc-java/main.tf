@@ -34,7 +34,7 @@ resource "coder_agent" "main" {
 
     # clone repo
     ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
-    git clone --progress git@github.com:FRC3005/${REPO_NAME}.git
+    git clone --progress git@github.com:FRC3005/$REPO_NAME.git
     EOF
 
   # These environment variables allow you to make Git commits right away after creating a
@@ -51,7 +51,7 @@ resource "coder_agent" "main" {
 
 resource "coder_app" "code-server" {
   agent_id = coder_agent.main.id
-  url      = "http://localhost:8080/?folder=/home/coder/${REPO_NAME}"
+  url      = "http://localhost:8080/?folder=/home/coder/Rapid-React-2022"
   icon     = "/icon/code.svg"
 
   healthcheck {
