@@ -15,7 +15,7 @@ data "coder_provisioner" "me" {
 }
 
 provider "docker" {
-  host     = "ssh://frc3005@3.87.232.85:6001"
+  host     = "ssh://will@100.109.152.19"
   ssh_opts = ["-o", "StrictHostKeyChecking=no", "-o", "UserKnownHostsFile=/dev/null"]
 }
 
@@ -28,9 +28,13 @@ resource "coder_agent" "main" {
   startup_script = <<EOF
     #!/bin/sh
     # install and start code-server
-    # curl -fsSL https://code-server.dev/install.sh | sh # For some reason this doesn't work specifically on our server... Add to container
+    curl -fsSL https://code-server.dev/install.sh | sh
     find $WPILIB_BASE/vsCodeExtensions/ -name "*.vsix" | xargs -I {} code-server --install-extension {}
-    code-server --auth none
+    code-server --auth none &
+
+    # clone repo
+    ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
+    git clone --progress git@github.com:FRC3005/${REPO_NAME}.git
     EOF
 
   # These environment variables allow you to make Git commits right away after creating a
@@ -47,7 +51,7 @@ resource "coder_agent" "main" {
 
 resource "coder_app" "code-server" {
   agent_id = coder_agent.main.id
-  url      = "http://localhost:8080/?folder=/home/coder"
+  url      = "http://localhost:8080/?folder=/home/coder/${REPO_NAME}"
   icon     = "/icon/code.svg"
 
   healthcheck {

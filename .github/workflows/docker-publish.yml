@@ -24,12 +24,13 @@ env:
 
 jobs:
   build-frc-java:
-
-    runs-on: ubuntu-latest
     strategy:
       max-parallel: 1
       matrix:
         node: [base, rapid-react]
+
+    runs-on: ubuntu-latest
+
     permissions:
       contents: read
       packages: write
