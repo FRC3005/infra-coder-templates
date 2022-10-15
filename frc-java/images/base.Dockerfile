@@ -27,12 +27,14 @@ RUN apt-get update && apt-get install -y apt-transport-https \
   && rm -rf /var/lib/apt/lists/*
 
 # Add a user `coder` so that you're not developing as the `root` user
+# Need to also modify some permissions to allow, hacky way for now
 RUN useradd coder \
   --create-home \
   --shell=/bin/bash \
   --uid=1000 \
   --user-group && \
-  echo "coder ALL=(ALL) NOPASSWD:ALL" >>/etc/sudoers.d/nopasswd
+  echo "coder ALL=(ALL) NOPASSWD:ALL" >>/etc/sudoers.d/nopasswd && \
+  chmod 666 /var/log
 
 ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
 ENV USER=coder

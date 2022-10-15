@@ -50,13 +50,12 @@ resource "coder_agent" "main" {
   startup_script = <<EOF
     #!/bin/sh
     # install and start code-server
-    curl -fsSL https://code-server.dev/install.sh | sh 2>&1 | tee -a /home/coder/coder_agent.log
-    find $WPILIB_BASE/vsCodeExtensions/ -name "*.vsix" | xargs -I {} code-server --install-extension {} 2>&1 | tee -a /home/coder/coder_agent.log
+    curl -fsSL https://code-server.dev/install.sh | sh
+    find $WPILIB_BASE/vsCodeExtensions/ -name "*.vsix" | xargs -I {} code-server --install-extension {}
 
     # clone repo
-    touch ~/.ssh/known_hosts
     ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
-    git clone --progress git@github.com:FRC3005/${local.repo}.git 2>&1 | tee -a /home/coder/coder_agent.log
+    git clone --progress git@github.com:FRC3005/${local.repo}.git
 
     # Start server
     code-server --auth none
