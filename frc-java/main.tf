@@ -11,6 +11,28 @@ terraform {
   }
 }
 
+locals {
+  repo_names = tomap({
+    "base"        = "",
+    "rapid-react" = "Rapid-React-2022"
+  })
+
+  org_name = "FRC3005"
+  repo     = lookup(repo_names, var.repo_selection, "")
+}
+
+variable "repo_selection" {
+  description = "What Docker image would you like to use for your workspace?"
+  default     = "rapid-react"
+
+  # List of images available for the user to choose from.
+  # Delete this condition to give users free text input.
+  validation {
+    condition     = contains(["base", "rapid-react"], var.repo_selection)
+    error_message = "Invalid Docker image!"
+  }
+}
+
 data "coder_provisioner" "me" {
 }
 
@@ -28,13 +50,13 @@ resource "coder_agent" "main" {
   startup_script = <<EOF
     #!/bin/sh
     # install and start code-server
-    curl -fsSL https://code-server.dev/install.sh | sh
-    find $WPILIB_BASE/vsCodeExtensions/ -name "*.vsix" | xargs -I {} code-server --install-extension {}
-    code-server --auth none &
+    curl -fsSL https://code-server.dev/install.sh | sh 2>&1 | tee -a /var/log/coder_agent.log
+    find $WPILIB_BASE/vsCodeExtensions/ -name "*.vsix" | xargs -I {} code-server --install-extension {} 2>&1 | tee -a /var/log/coder_agent.log
+    code-server --auth none & 2>&1 | tee -a /var/log/code_server.log
 
     # clone repo
-    ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
-    git clone --progress git@github.com:FRC3005/$REPO_NAME.git
+    ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts 2>&1 | tee -a /var/log/coder_agent.log
+    git clone --progress git@github.com:FRC3005/${local.repo}.git 2>&1 | tee -a /var/log/coder_agent.log
     EOF
 
   # These environment variables allow you to make Git commits right away after creating a
@@ -51,25 +73,13 @@ resource "coder_agent" "main" {
 
 resource "coder_app" "code-server" {
   agent_id = coder_agent.main.id
-  url      = "http://localhost:8080/?folder=/home/coder/Rapid-React-2022"
+  url      = "http://localhost:8080/?folder=/home/coder/${local.repo}"
   icon     = "/icon/code.svg"
 
   healthcheck {
     url       = "http://localhost:8080/healthz"
     interval  = 3
     threshold = 10
-  }
-}
-
-variable "docker_image" {
-  description = "What Docker image would you like to use for your workspace?"
-  default     = "rapid-react"
-
-  # List of images available for the user to choose from.
-  # Delete this condition to give users free text input.
-  validation {
-    condition     = contains(["base", "rapid-react"], var.docker_image)
-    error_message = "Invalid Docker image!"
   }
 }
 
@@ -80,7 +90,7 @@ resource "docker_volume" "home_volume" {
 resource "docker_container" "workspace" {
   count = data.coder_workspace.me.start_count
   #image = "codercom/code-server:latest"
-  image = "ghcr.io/frc3005/frc-java-${var.docker_image}:main"
+  image = "ghcr.io/frc3005/frc-java-${var.repo_selection}:main"
   # Uses lower() to avoid Docker restriction on container names.
   name     = "coder-${data.coder_workspace.me.owner}-${lower(data.coder_workspace.me.name)}"
   hostname = lower(data.coder_workspace.me.name)
@@ -88,10 +98,12 @@ resource "docker_container" "workspace" {
   # Use the docker gateway if the access URL is 127.0.0.1
   entrypoint = ["sh", "-c", replace(coder_agent.main.init_script, "/localhost|127\\.0\\.0\\.1/", "host.docker.internal")]
   env        = ["CODER_AGENT_TOKEN=${coder_agent.main.token}"]
+
   host {
     host = "host.docker.internal"
     ip   = "host-gateway"
   }
+
   volumes {
     container_path = "/home/coder/"
     volume_name    = docker_volume.home_volume.name

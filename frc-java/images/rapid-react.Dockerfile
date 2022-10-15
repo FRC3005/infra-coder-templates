@@ -1,7 +1,6 @@
 FROM ghcr.io/frc3005/frc-java-base:main
 
 ENV WPILIB_BASE=/home/${USER}/wpilib/2022
-ENV REPO_NAME=Rapid-React-2022
 USER root
 
 # Run WPILib Installer

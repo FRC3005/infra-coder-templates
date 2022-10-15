@@ -22,8 +22,7 @@ RUN apt-get update && apt-get install -y apt-transport-https \
   vim \
   wget \
   zip \
-  && rm -rf /var/lib/apt/lists/* \
-  && curl -fsSL https://code-server.dev/install.sh | sh
+  && rm -rf /var/lib/apt/lists/*
 
 # Add a user `coder` so that you're not developing as the `root` user
 RUN useradd coder \
