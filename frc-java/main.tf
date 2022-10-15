@@ -52,15 +52,14 @@ resource "coder_agent" "main" {
     # install and start code-server
     curl -fsSL https://code-server.dev/install.sh | sh 2>&1 | tee -a /home/coder/coder_agent.log
     find $WPILIB_BASE/vsCodeExtensions/ -name "*.vsix" | xargs -I {} code-server --install-extension {} 2>&1 | tee -a /home/coder/coder_agent.log
-    code-server --auth none &
-
-    # Wait for the above to get started, plus some margin
-    sleep 5
 
     # clone repo
     touch ~/.ssh/known_hosts
-    ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts 2>> /home/coder/coder_agent.log
-    git clone --progress git@github.com:FRC3005/${local.repo}.git 2>&1 >> /home/coder/coder_agent.log
+    ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
+    git clone --progress git@github.com:FRC3005/${local.repo}.git 2>&1 | tee -a /home/coder/coder_agent.log
+
+    # Start server
+    code-server --auth none
     EOF
 
   # These environment variables allow you to make Git commits right away after creating a
