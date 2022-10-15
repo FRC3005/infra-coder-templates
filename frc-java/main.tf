@@ -54,7 +54,8 @@ resource "coder_agent" "main" {
     find $WPILIB_BASE/vsCodeExtensions/ -name "*.vsix" | xargs -I {} code-server --install-extension {}
 
     # clone repo
-    ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
+    touch /home/${USER}/.ssh/known_hosts
+    ssh-keyscan -t rsa github.com >> /home/${USER}/.ssh/known_hosts
     git clone --progress git@github.com:FRC3005/${local.repo}.git
 
     # Start server
