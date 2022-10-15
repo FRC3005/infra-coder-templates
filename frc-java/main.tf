@@ -50,13 +50,13 @@ resource "coder_agent" "main" {
   startup_script = <<EOF
     #!/bin/sh
     # install and start code-server
-    curl -fsSL https://code-server.dev/install.sh | sh 2>&1 | tee -a /var/log/coder_agent.log
-    find $WPILIB_BASE/vsCodeExtensions/ -name "*.vsix" | xargs -I {} code-server --install-extension {} 2>&1 | tee -a /var/log/coder_agent.log
-    code-server --auth none & 2>&1 | tee -a /var/log/code_server.log
+    curl -fsSL https://code-server.dev/install.sh | sh 2>&1 | tee -a /home/coder/coder_agent.log
+    find $WPILIB_BASE/vsCodeExtensions/ -name "*.vsix" | xargs -I {} code-server --install-extension {} 2>&1 | tee -a /home/coder/coder_agent.log
+    code-server --auth none & 2>&1 | tee -a /home/coder/code-server.log
 
     # clone repo
-    ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts 2>&1 | tee -a /var/log/coder_agent.log
-    git clone --progress git@github.com:FRC3005/${local.repo}.git 2>&1 | tee -a /var/log/coder_agent.log
+    ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts 2>&1 | tee -a /home/coder/coder_agent.log
+    git clone --progress git@github.com:FRC3005/${local.repo}.git 2>&1 | tee -a /home/coder/coder_agent.log
     EOF
 
   # These environment variables allow you to make Git commits right away after creating a
