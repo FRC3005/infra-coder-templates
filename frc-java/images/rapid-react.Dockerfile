@@ -1,5 +1,6 @@
 FROM ghcr.io/frc3005/frc-java-base:main
 
+ENV CODER_IMAGE="rapid-react"
 ENV WPILIB_BASE=/home/${USER}/wpilib/2022
 USER root
 
