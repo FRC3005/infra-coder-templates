@@ -1,5 +1,7 @@
 FROM ubuntu:20.04
 
+ENV USER=coder
+
 RUN apt-get update && \
     DEBIAN_FRONTEND="noninteractive" apt-get install --yes \
     bash \
@@ -28,6 +30,8 @@ RUN useradd coder \
     --shell=/bin/bash \
     --uid=1000 \
     --user-group && \
-    echo "coder ALL=(ALL) NOPASSWD:ALL" >>/etc/sudoers.d/nopasswd
+    echo "coder ALL=(ALL) NOPASSWD:ALL" >>/etc/sudoers.d/nopasswd \
+    && mkdir -p /home/${USER}/Src
 
-USER coder
+USER ${USER}
+WORKDIR /home/${USER}/Src
