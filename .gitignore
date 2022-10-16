@@ -1,0 +1,2 @@
+# Allow testing the terraform scripts here before pushing them
+.terraform*

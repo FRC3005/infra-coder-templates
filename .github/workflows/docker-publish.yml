@@ -23,11 +23,11 @@ env:
 
 
 jobs:
-  build-frc-java:
+  build-docker:
     strategy:
       max-parallel: 1
       matrix:
-        node: [base, rapid-react]
+        image: [frc-java/base, frc-java/rapid-react, languages/base, languages/java, languages/node]
 
     runs-on: ubuntu-latest
 
@@ -71,7 +71,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
         with:
-          images: ${{ env.REGISTRY }}/${{ env.BASE_IMAGE_NAME }}${{ matrix.node }}
+          images: ${{ env.REGISTRY }}/${{ env.BASE_IMAGE_NAME }}${{ matrix.image }}
           flavor: latest=auto
 
       # Build and push base Docker image with Buildx (don't push on PR)
@@ -81,7 +81,7 @@ jobs:
         uses: docker/build-push-action@ac9327eae2b366085ac7f6a2d02df8aa8ead720a
         with:
           context: .
-          file: frc-java/images/${{ matrix.node }}.Dockerfile
+          file: images/${{ matrix.image }}.Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
