@@ -1,5 +1,4 @@
-# Start from base image (built on Docker host)
-FROM coder-base:v0.1
+FROM ghcr.io/frc3005/languages/base:main
 
 # Install everything as root
 USER root
