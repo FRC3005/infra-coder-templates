@@ -16,6 +16,8 @@ data "coder_provisioner" "me" {
 }
 
 provider "docker" {
+  host     = "ssh://will@100.109.152.19"
+  ssh_opts = ["-o", "StrictHostKeyChecking=no", "-o", "UserKnownHostsFile=/dev/null"]
 }
 
 data "coder_workspace" "me" {
@@ -28,8 +30,8 @@ resource "coder_agent" "main" {
     #!/bin/bash
 
     # install and start code-server
-    curl -fsSL https://code-server.dev/install.sh | sh  | tee code-server-install.log
-    code-server --auth none --port 13337 | tee code-server-install.log &
+    curl -fsSL https://code-server.dev/install.sh | sh
+    code-server --auth none --port 13337 &
   EOT
 }
 
@@ -56,14 +58,8 @@ variable "docker_image" {
   # List of images available for the user to choose from.
   # Delete this condition to give users free text input.
   validation {
-    condition     = contains(["base", "java", "node"], var.docker_image)
+    condition     = contains(["base", "java", "node", "rust"], var.docker_image)
     error_message = "Invalid Docker image!"
-  }
-
-  # Prevents admin errors when the image is not found
-  validation {
-    condition     = fileexists("images/${var.docker_image}.Dockerfile")
-    error_message = "Invalid Docker image. The file does not exist in the images directory."
   }
 }
 
@@ -71,21 +67,9 @@ resource "docker_volume" "home_volume" {
   name = "coder-${data.coder_workspace.me.owner}-${lower(data.coder_workspace.me.name)}-root"
 }
 
-resource "docker_image" "coder_image" {
-  name = "coder-base-${data.coder_workspace.me.owner}-${lower(data.coder_workspace.me.name)}"
-  build {
-    path       = "./images/"
-    dockerfile = "${var.docker_image}.Dockerfile"
-    tag        = ["coder-${var.docker_image}:v0.1"]
-  }
-
-  # Keep alive for other workspaces to use upon deletion
-  keep_locally = true
-}
-
 resource "docker_container" "workspace" {
   count = data.coder_workspace.me.start_count
-  image = docker_image.coder_image.latest
+  image = "ghcr.io/frc3005/languages/${var.docker_image}:main"
   # Uses lower() to avoid Docker restriction on container names.
   name = "coder-${data.coder_workspace.me.owner}-${lower(data.coder_workspace.me.name)}"
   # Hostname makes the shell more user friendly: coder@my-workspace:~$
