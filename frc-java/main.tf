@@ -15,6 +15,7 @@ locals {
   repo_names = tomap({
     "base"        = "",
     "rapid-react" = "Rapid-React-2022"
+    "charged-up"  = "Charged-Up-2023"
   })
 
   org_name = "FRC3005"
@@ -23,12 +24,12 @@ locals {
 
 variable "repo_selection" {
   description = "What Docker image would you like to use for your workspace?"
-  default     = "rapid-react"
+  default     = "charged-up"
 
   # List of images available for the user to choose from.
   # Delete this condition to give users free text input.
   validation {
-    condition     = contains(["base", "rapid-react"], var.repo_selection)
+    condition     = contains(["base", "rapid-react", "charged-up"], var.repo_selection)
     error_message = "Invalid Docker image!"
   }
 }
