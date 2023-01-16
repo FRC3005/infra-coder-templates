@@ -13,7 +13,7 @@ RUN apt-get update && apt-get install -y apt-transport-https \
   curl \
   git \
   java-common \
-  openjdk-11-jdk \
+  openjdk-18-jdk \
   openssh-client \
   iputils-ping \
   python3-dev \
@@ -34,6 +34,6 @@ RUN useradd coder \
   --user-group && \
   echo "coder ALL=(ALL) NOPASSWD:ALL" >>/etc/sudoers.d/nopasswd
 
-ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+ENV JAVA_HOME=/usr/lib/jvm/java-18-openjdk-amd64
 ENV USER=coder
 USER ${USER}
