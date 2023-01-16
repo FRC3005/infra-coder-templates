@@ -94,7 +94,7 @@ resource "docker_volume" "home_volume" {
 resource "docker_container" "workspace" {
   count = data.coder_workspace.me.start_count
   #image = "codercom/code-server:latest"
-  image = "ghcr.io/frc3005/frc-java-${var.repo_selection}:main"
+  image = "ghcr.io/frc3005/frc-java/${var.repo_selection}:main"
   # Uses lower() to avoid Docker restriction on container names.
   name     = "coder-${data.coder_workspace.me.owner}-${lower(data.coder_workspace.me.name)}"
   hostname = lower(data.coder_workspace.me.name)
