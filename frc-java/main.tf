@@ -38,7 +38,7 @@ data "coder_provisioner" "me" {
 }
 
 provider "docker" {
-  host     = "ssh://will@100.109.152.19"
+  host     = "ssh://will@server.williamtoth.com:51637"
   ssh_opts = ["-o", "StrictHostKeyChecking=no", "-o", "UserKnownHostsFile=/dev/null"]
 }
 
