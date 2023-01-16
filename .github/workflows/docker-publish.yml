@@ -27,7 +27,7 @@ jobs:
     strategy:
       max-parallel: 1
       matrix:
-        image: [frc-java/base, frc-java/rapid-react, languages/base, languages/java, languages/node, languages/rust]
+        image: [frc-java/base, frc-java/charged-up, languages/base, languages/java, languages/node, languages/rust]
 
     runs-on: ubuntu-latest
 
